@@ -10,43 +10,42 @@ import random
 
 class GeneticController:
     
-    def __init__(self, individuals_per_era=5, steps=30):
-        self.era = []
-        self.individuals_per_era = individuals_per_era
+    def __init__(self, individuals_per_generation=5, steps=30):
+        self.generation = []
+        self.individuals_per_generation = individuals_per_generation
         self.steps = steps
         self.name = 0
         #self.individual = Individual(steps) 
         
-    def setting_first_era(self):
+    def setting_first_generation(self):
         
-        era_individuals = {}
-        for self.name in range(0, self.individuals_per_era):
+        generation_individuals = {}
+        for self.name in range(0, self.individuals_per_generation):
             ind = Individual(self.steps, self.name)
             ind.random_genetic()
-            era_individuals[ind.name] = ind
+            generation_individuals[ind.name] = ind
         
-        self.era.append(era_individuals)
+        self.generation.append(generation_individuals)
         
-        # for era in self.era:
+        # for era in self.generation:
         #     for individual in era:
         #         print(f'{len(individual.genetic)} : {individual.genetic}\n')
     
-    def create_era(self, ind_list):
+    def create_generation(self, ind_list):
         
         # Descobrindo quantos randoms precisamos criar
-        random_to_create = self.individuals_per_era - len(ind_list)
-        #print(f'{random_to_create}')
+        random_to_create = self.individuals_per_generation - len(ind_list)
         
-        era_individuals = {}
+        generation_individuals = {}
         for individual in ind_list:
-            era_individuals[individual.name] = individual
+            generation_individuals[individual.name] = individual
         
         if random_to_create > 0:
             for create in range(0, random_to_create):
                 individual = self.generate_random_individual()
-                era_individuals[individual.name] = individual
+                generation_individuals[individual.name] = individual
                 
-        self.era.append(era_individuals)
+        self.generation.append(generation_individuals)
             
     def generate_individual(self):
         self.name += 1
@@ -81,5 +80,5 @@ class Individual:
 if __name__ == "__main__":
     
     gc = GeneticController()
-    gc.setting_first_era()
+    gc.setting_first_generation()
     #print(gc.steps)    

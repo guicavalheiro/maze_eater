@@ -50,7 +50,6 @@ class IA:
         
     def make_run(self):
         
-        #while self.generation_cont < self.rounds:
         while (self.generation_cont < self.rounds) and (self.stop_breeding_count < self.stop_breeding):
             print(f"\nGENERATION: {self.generation_cont}")
             
@@ -78,13 +77,6 @@ class IA:
             
             self.breeding_analyse(father, mother)
             
-            # if father.h >= 24:
-            #     print(f'\nChegou ao final do labirinto!')
-            #     print(f'ID: {father.name}')
-            #     print(f'H : {father.h}')
-            #     print(f'Genética: {father.genetic}')
-            #     break
-            
             first_son, second_son = self.tournament_selection(father, mother)
             
             self.gc.create_generation([father, first_son, second_son])
@@ -99,10 +91,6 @@ class IA:
             self.old_mother = mother.h
             self.old_father = father.h
             self.stop_breeding_count = 0
-            
-        # elif mother.h > self.old_mother:
-        #     self.old_mother = mother.h
-        #     self.stop_breeding_count = 0
             
         elif father.h > self.old_father:
             self.old_father = father.h
@@ -122,9 +110,6 @@ class IA:
         father = [0, 0]
         mother = [0, 0]
         
-        #print(len(self.gc.generation[self.generation_cont]))
-        #print('-------------------------------------------')
-        #print(f'\nEra: {self.generation_cont}')
         individuals_dict = self.gc.generation[self.generation_cont] 
         for run in self.gc.generation[self.generation_cont]:
             
@@ -135,10 +120,7 @@ class IA:
                 father = [run.name, run.h]
             
             elif run.h > mother[1]:
-                mother = [run.name, run.h]
-            
-            else:
-                pass            
+                mother = [run.name, run.h]           
             
             print(f'\nId     : {run.name}')
             print(f'H      : {run.h}')
@@ -149,6 +131,7 @@ class IA:
         print(f'Mother ID: {mother[0]}  Mother H: {mother[1]}')
         print('\n-------------------------------------------')
         
+        # Tornar generico
         if father[1] == 24:
             return self.gc.generation[self.generation_cont][father[0]], self.gc.generation[self.generation_cont][mother[0]], True
         
@@ -171,15 +154,6 @@ class IA:
         self.mutation(second_son)
         
         return first_son, second_son
-        
-        # print(father.genetic)
-        # print(mother.genetic)
-        # print(first_son)
-        # print(second_son)
-        
-        # genetic_dict = { 'Father': father.genetic, 'First_Son': first_son, 'Mother': mother.genetic, 'Second_Son': second_son }
-        # genetic_df = pd.DataFrame(genetic_dict)
-        # print(genetic_df)
     
     def mutation(self, to_mutate):
         
@@ -207,10 +181,6 @@ class IA:
         algorithm = True
         while algorithm:
              
-        # Cara o que eu tenho que fazer agora?
-        # Tenho que descobrir como calcular a menor distância da entrada até a saída
-        # Tenho que organizar uma fila de posição
-
             self.a.create_individual(self.maze.actual, self.maze.maze)
             
             move = self.walk()
@@ -257,7 +227,6 @@ def main(file_):
     
     ia = IA(maze_map)
     ia.make_run()
-    #ia.test_a()
     
 if __name__ == '__main__':
     

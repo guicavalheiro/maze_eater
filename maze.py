@@ -26,9 +26,6 @@ class Maze:
         self.start = True
         
         self.finish = False
-        
-        self.label = ['right', 'right', 'right', 'right', 'right', 'down', 'right', 'right', 'right', 'down', 'down', 'right', 'down', 'down', 
-                      'left', 'down', 'down', 'down', 'left', 'left', 'down', 'down', 'right', 'right', 'down', 'right', 'right', 'right']
 
         self.label_counter = 0
         self.steps = 0
@@ -104,15 +101,15 @@ class Maze:
         # teste = 'teste'
         # print(c(teste, 'yellow'))
         
-        #condition = True
-        condition = False
+        condition = True
+        #condition = False
         
         if condition:
             if self.steps != 0:
                 #if self.ia_flag:
                 print(f'\nInd name   : {self.ind_name}')
                 print(f"Before     : {self.before}")
-                print(f'Aux        : {self.aux_coord}')
+                #print(f'Aux        : {self.aux_coord}')
                 print(f"Actual     : {self.actual}")
                 if self.ia_flag:
                     print(f'Key Pressed: {self.ia_steps[self.ia_steps_count]}')

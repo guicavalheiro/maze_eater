@@ -4,11 +4,12 @@ import maze
 import copy
 import pandas as pd
 import random
+import os
 from tkinter import *
 
 class IA:
     
-    def __init__(self, maze_, individuals_per_generation=15, steps=70, rounds=10000, mutation_percentage=0.30, tk_root=0):
+    def __init__(self, maze_, individuals_per_generation=10, steps=1000, rounds=10, mutation_percentage=0.30, tk_root=0):
         
         self.gc = ga.GeneticController(individuals_per_generation, steps)
         self.maze = self.config_maze(maze_, tk_root)
@@ -31,10 +32,16 @@ class IA:
     def to_csv(self):
         self.data = pd.DataFrame.from_dict(self.dict_data, orient='index', columns=['Generation', 'Father', 'Mother']) 
         self.data.to_csv(f'ipg{self.gc.individuals_per_generation}_steps{self.steps}_rounds{self.rounds}_mutation{self.mutation_percentage}.csv')
+    
+    def to_txt(self, winner):
         
+        with open(f'ipg{self.gc.individuals_per_generation}_steps{self.steps}_rounds{self.rounds}_mutation{self.mutation_percentage}.txt', 'w') as w:
+            for direction in winner.genetic:
+                w.write(f'{direction}\n')
+      
     def config_maze(self, maze_, tk_root):
-        altura  = len(maze_[0]) 
-        largura = len(maze_) 
+        altura  = len(maze_) 
+        largura = len(maze_[0]) 
         maze_obj = maze.Maze(altura, largura, maze_, tk_root)
         return maze_obj
         
@@ -60,7 +67,12 @@ class IA:
                 self.analyse_run(ind.name)
                 self.reset_maze()
                 
-            father, mother = self.select_best()
+            father, mother, end = self.select_best()
+            
+            if end:
+                self.to_txt(father)
+                print("\nAtingiu o final do labirinto! Parabéns!")
+                break
             
             self.save_data(father, mother)
             
@@ -111,8 +123,8 @@ class IA:
         mother = [0, 0]
         
         #print(len(self.gc.generation[self.generation_cont]))
-        print('-------------------------------------------')
-        print(f'\nEra: {self.generation_cont}')
+        #print('-------------------------------------------')
+        #print(f'\nEra: {self.generation_cont}')
         individuals_dict = self.gc.generation[self.generation_cont] 
         for run in self.gc.generation[self.generation_cont]:
             
@@ -135,8 +147,13 @@ class IA:
         print()
         print(f'Father ID: {father[0]}  Father H: {father[1]}')
         print(f'Mother ID: {mother[0]}  Mother H: {mother[1]}')
+        print('\n-------------------------------------------')
         
-        return self.gc.generation[self.generation_cont][father[0]], self.gc.generation[self.generation_cont][mother[0]]
+        if father[1] == 24:
+            return self.gc.generation[self.generation_cont][father[0]], self.gc.generation[self.generation_cont][mother[0]], True
+        
+        else:
+            return self.gc.generation[self.generation_cont][father[0]], self.gc.generation[self.generation_cont][mother[0]], False
 
     def tournament_selection(self, father, mother):
            
@@ -183,20 +200,60 @@ class IA:
     
     def test_a(self):
         
-        #self.a = a.A()
-        key = 'right'
+        ind_length = 15
+        self.a = a.A()
+        self.maze.start_a_run(self.maze.maze)
+        cont = 0
+        algorithm = True
+        while algorithm:
+             
+        # Cara o que eu tenho que fazer agora?
+        # Tenho que descobrir como calcular a menor distância da entrada até a saída
+        # Tenho que organizar uma fila de posição
+
+            self.a.create_individual(self.maze.actual, self.maze.maze)
+            
+            move = self.walk()
+            algorithm = self.maze.a_run(move, self.maze.maze)
         
-        self.maze.a_run(key)
-        print(self.maze.actual)
+            cont += 1
+            
+    def walk(self):
         
-        key = 'right'
+        print(f"Individuo {self.a.queue[0].id} veio do nodo: {self.a.queue[0].came_from}")
+        print(f"Possuí os seguintes movimentos: {self.a.queue[0].possible_moves}")
         
+        if len(self.a.queue[0].possible_moves) > 1:
+            key = self.a.euclidean_distance(self.a.queue[0].possible_moves, self.maze.actual, self.maze.maze)
+            #key = self.a.analyse_move(self.a.queue[0].possible_moves, self.maze.actual, self.maze.maze, key)
+            move = self.a.queue[0].possible_moves.pop(self.a.queue[0].possible_moves.index(key))
+        
+        else:
+            move = self.a.queue[0].possible_moves.pop(0)
+            
+        print(f"Andou na direção {move}")
+        print(f"Sobrou os seguintes movimentos: {self.a.queue[0].possible_moves}")
+        
+        if self.a.queue[0].possible_moves == []:
+            print("Popped!")
+            self.a.pop()
+        
+        return move
         
 def main(file_):
-
+    
     with open(file_, 'r') as f:
-        maze_map = f.readlines()
-        maze_map = [l.strip('\n\r') for l in maze_map]
+        maze = f.readlines()
+        maze = [l.strip('\n\r') for l in maze]
+        
+    maze_map  = []
+    for line in maze:
+        maze_line = []
+        
+        for cell in line:
+            maze_line.append(cell)
+        
+        maze_map.append(maze_line)
     
     ia = IA(maze_map)
     ia.make_run()

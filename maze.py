@@ -23,6 +23,7 @@ class Maze:
         self.player = '@'
         
         self.maze = maze
+        self.start = True
         
         self.finish = False
         
@@ -54,6 +55,9 @@ class Maze:
         self.ia_steps_count = 0
         self.ia_flag = True
         self.ind_name = ind_name
+    
+    def set_a_run(self):
+        pass
     
     def gui_print_maze(self, maze):
         
@@ -100,8 +104,8 @@ class Maze:
         # teste = 'teste'
         # print(c(teste, 'yellow'))
         
-        condition = True
-        #condition = False
+        #condition = True
+        condition = False
         
         if condition:
             if self.steps != 0:
@@ -143,17 +147,16 @@ class Maze:
         
     def run(self):
         
-        start = True
         maze = self.maze
         play = True
         while play:
             
             # Start
-            if start == True:
+            if self.start == True:
                 maze = self.next_position(maze, [0, 0], 'inicio')
                 self.print_maze(maze)
                 
-                start = False
+                self.start = False
             
             # Simulate Key
             if self.ia_flag:
@@ -201,8 +204,30 @@ class Maze:
 
             if self.finish:
                 play = False
-                
+    
+    def start_a_run(self, maze):
+        
+        # Start
+        if self.start == True:
+            maze = self.next_position(maze, [0, 0], 'inicio')
+            self.print_maze(maze)
+            
+            self.start = False
+        
+    def a_run(self, move, maze):
+    
+        maze = self.next_position(maze, self.actual, move)    
+        
+        if self.finish:
+            return False
+        
+        else:
+            self.print_maze(maze)
+            return True
+        
     def next_position(self, maze, position, key):
+        
+        #print(f"Key: {key}")
         
         if key == 'up':
             new_pos = position[0] - 1
@@ -257,7 +282,7 @@ class Maze:
                 self.print_maze(maze)
                 
                 self.finish = True
-                print(f"{c('You Win!', 'yellow')}")
+                #print(f"{c('You Win!', 'yellow')}")
         
         elif key == 'down':
             new_pos = position[0] + 1
@@ -311,7 +336,7 @@ class Maze:
                 self.print_maze(maze)
                 
                 self.finish = True
-                print(f"{c('You Win!', 'yellow')}")
+                #print(f"{c('You Win!', 'yellow')}")
 
         elif key == 'left':
             new_pos = position[1] - 1
@@ -365,7 +390,7 @@ class Maze:
                 self.print_maze(maze)
                 
                 self.finish = True
-                print(f"{c('You Win!', 'yellow')}")
+                #print(f"{c('You Win!', 'yellow')}")
         
         elif key == 'right':
             new_pos = position[1] + 1
@@ -389,7 +414,9 @@ class Maze:
                 
                 # Printa e atualiza coordenadas dos elementos anteriores
                 self.final_step(maze)
- 
+
+            
+            
             elif result == 1:
                 #print("Found a wall")
                 pass
@@ -420,7 +447,7 @@ class Maze:
                 self.print_maze(maze)
                 
                 self.finish = True
-                print(f"{c('You Win!', 'yellow')}")
+                #print(f"{c('You Win!', 'yellow')}")
         
         elif key == 'inicio':
             
@@ -451,11 +478,16 @@ class Maze:
         
     def player_position(self, maze): 
         #print(f'Atualizando a posição {self.actual} com @')
+        #print(self.actual)
+        #print(maze)
         maze[self.actual[0]][self.actual[1]] = '@'
     
     def valid_position(self, pos_x, pos_y):
         
-        if (pos_x < 0) or (pos_x > self.largura) or (pos_y < 0) or (pos_y > self.altura):
+        #print(f"Pos_x: {pos_x}, Pos_y: {pos_y}")
+        #print(f"Altura: {self.altura}, Largura: {self.largura}")
+        
+        if (pos_x < 0) or (pos_x >= self.altura) or (pos_y < 0) or (pos_y >= self.largura):
             #print("11111")
             self.steps += 1
             return 2
@@ -481,15 +513,15 @@ class Maze:
 
 def main(maze):
     
-    altura  = len(maze[0]) 
-    largura = len(maze)
+    altura  = len(maze) 
+    largura = len(maze[0])
     
     maze_obj = Maze(altura, largura, maze)
     maze_obj.run()
 
 if __name__ == '__main__':
     
-    file_ = 'teste2.txt'
+    file_ = 'teste3.txt'
     
     with open(file_, 'r') as f:
         maze = f.readlines()

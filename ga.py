@@ -66,7 +66,7 @@ class Individual:
         self.cromossomes = {0 : 'up', 1: 'down', 2: 'left', 3: 'right'}
         self.h = 0
         self.genetic = []
-        self.reach = []
+        self.reach = [] 
         
     def random_genetic(self):
         

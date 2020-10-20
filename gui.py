@@ -49,23 +49,45 @@ class tk:
         mutation_label.grid(row=6, column=0)
         mutation_input.grid(row=6, column=1)
         
+        # Stop breeding
+        stop_breeding_label = Label(control_frame, text='Stop Breeding        ')
+        stop_breeding_input = Entry(control_frame)
+        
+        stop_breeding_label.grid(row=8, column=0)
+        stop_breeding_input.grid(row=8, column=1)
+        
+        # Fast or slow option
+        fast_var = IntVar()
+        fast_option = Checkbutton(control_frame, text='Light Run', variable=fast_var)
+        fast_option.grid(row=10, column=0)
+        
+        slow_var = IntVar()
+        slow_option = Checkbutton(control_frame, text='Slow Run', variable=slow_var)
+        slow_option.grid(row=10, column=1)
+        
         # Salvando todos valores inputados
-        save_all = Button(control_frame, text='Save All', command= lambda: self.save_all(individuals_per_era_input.get(), steps_input.get(), rounds_input.get(), mutation_input.get(), lab_frame))
-        save_all.grid(row=8, column=1)
+        save_all = Button(control_frame, text='Save All', command= lambda: self.save_all(individuals_per_era_input.get(), steps_input.get(), rounds_input.get(), mutation_input.get(), stop_breeding_input.get(), fast_var.get(), slow_var.get()))
+        save_all.grid(row=12, column=1)
         
         # Iniciar
         run = Button(control_frame, text='Run', command=self.run)
-        run.grid(row=9,column=1)
+        run.grid(row=13, column=1)
         
         self.root.mainloop()  
     
-    def save_all(self, individuals_amount, steps_amount, rounds_amount, mutation_amount, lab_frame):
+    def save_all(self, individuals_amount, steps_amount, rounds_amount, mutation_amount, stop_breeding, fast, slow):
         #self.individuals_per_era(individuals_amount)
         #self.steps(steps_amount)
         #self.rounds(rounds_amount)
         #self.mutation(mutation_amount)
         
-        self.ia = ia.IA(self.maze, int(individuals_amount), int(steps_amount), int(rounds_amount), float(mutation_amount), lab_frame)
+        if slow == 1:
+            process_option = 'Slow'
+        
+        else:
+            process_option = 'Fast'
+        
+        self.ia = ia.IA(self.maze, int(individuals_amount), int(steps_amount), int(rounds_amount), float(mutation_amount), int(stop_breeding), process_option)
 
     def run(self):
         self.ia.make_run()

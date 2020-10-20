@@ -9,7 +9,7 @@ os.system('color')
 
 class Maze:
     
-    def __init__(self, altura, largura, maze, tk_root=0):
+    def __init__(self, altura, largura, maze, process_option='Slow'):
         
         self.actual    = [0, 0]
         self.before    = [0, 0]
@@ -30,7 +30,8 @@ class Maze:
         self.label_counter = 0
         self.steps = 0
         
-        self.sleeper = 0
+        self.process_option = process_option
+        self.sleeper = 2
         
         self.ia_steps = []
         self.ia_steps_count = 0
@@ -39,14 +40,7 @@ class Maze:
         self.ind_name = 'NOT_DEFINED'
         
         self.numero_de_movimentos = 50
-        
-        # if tk_root != 0:
-        #     text = Label(tk_root, text='0')
-        #     text.grid(row=0,column=0)
-            
-        #     text_2 = Label(tk_root, text='@')
-        #     text_2.grid(row=0,column=1)
-
+    
     def set_ia_run(self, ia_steps, ind_name):
         self.ia_steps = ia_steps
         self.ia_steps_count = 0
@@ -56,68 +50,24 @@ class Maze:
     def set_a_run(self):
         pass
     
-    def gui_print_maze(self, maze):
-        
-        # teste = 'teste'
-        # print(c(teste, 'yellow'))
-        
-        condition = True
-        #condition = False
-        
-        if condition:
-            # if self.steps != 0:
-            #     if self.ia_flag:
-            #         print(f'Key Pressed: {self.ia_steps[self.ia_steps_count]}')
-                
-            # print(f'Steps      : {self.steps}')
-            # print(f'Element Before: {self.element_before}')
-            # print(f'Position Before: {self.before}')
-            # print(f'')
-            
-            for line in maze:
-                for cell in line:
-                    
-                    if cell == 'E' or cell == 'S':
-                        
-                        return c(cell, 'white')
-
-                    elif cell == '1':
-                        return c(cell, 'red')
-                    
-                    elif cell == '0':
-                        return c(cell, 'green')
-                    
-                    elif cell == '@':
-                        return c(cell, 'yellow')
-                    
-                return ''
-            print()    
-            
-            #print()     
-            time.sleep(self.sleeper)       
-
     def print_maze(self, maze):
         
-        # teste = 'teste'
-        # print(c(teste, 'yellow'))
         
-        condition = True
-        #condition = False
+        if self.process_option == 'Fast':
+            condition = False
+        
+        else:
+            condition = True
         
         if condition:
             if self.steps != 0:
-                #if self.ia_flag:
                 print(f'\nInd name   : {self.ind_name}')
                 print(f"Before     : {self.before}")
-                #print(f'Aux        : {self.aux_coord}')
                 print(f"Actual     : {self.actual}")
                 if self.ia_flag:
                     print(f'Key Pressed: {self.ia_steps[self.ia_steps_count]}')
             
             print(f'Steps      : {self.steps}')
-            #print(f'Element Before: {self.element_before}')
-            #print(f'Position Before: {self.before}')
-            #print(f'')
             for line in maze:
                 for cell in line:
                     
@@ -136,8 +86,7 @@ class Maze:
                 print()
             print()    
             
-            #print()     
-            time.sleep(self.sleeper)       
+            #time.sleep(self.sleeper)       
 
         else:
             pass
@@ -505,7 +454,6 @@ class Maze:
             return 0    
     
     def final_step(self, maze):
-        #print(f"Atualizando {self.before} para {self.aux_coord}")
         self.before = self.aux_coord
 
 def main(maze):

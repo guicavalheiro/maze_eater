@@ -1,5 +1,4 @@
 import ga
-import a
 import maze
 import copy
 import pandas as pd
@@ -9,18 +8,18 @@ from tkinter import *
 
 class IA:
     
-    def __init__(self, maze_, individuals_per_generation=10, steps=1000, rounds=10, mutation_percentage=0.30, tk_root=0):
+    def __init__(self, maze_, individuals_per_generation=5, steps=75, rounds=500, mutation_percentage=0.10, stop_breeding=350, process_option='Fast'):
         
         self.gc = ga.GeneticController(individuals_per_generation, steps)
-        self.maze = self.config_maze(maze_, tk_root)
+        self.maze = self.config_maze(maze_, process_option)
         self.new_maze = copy.deepcopy(self.maze)
         self.rounds = rounds
         self.generation_cont = 0
         self.steps = steps
         self.mutation_percentage = mutation_percentage
-        self.dict_data = {}
-        self.stop_breeding = 1000
+        self.stop_breeding = stop_breeding
         self.stop_breeding_count = 0
+        self.dict_data = {}
         self.old_mother = 0
         self.old_father = 0
     
@@ -29,20 +28,22 @@ class IA:
     def save_data(self, father, mother):
         self.dict_data[self.generation_cont] = [self.generation_cont, father.h, mother.h]
     
-    def to_csv(self):
+    def to_csv(self, tag):
         self.data = pd.DataFrame.from_dict(self.dict_data, orient='index', columns=['Generation', 'Father', 'Mother']) 
-        self.data.to_csv(f'ipg{self.gc.individuals_per_generation}_steps{self.steps}_rounds{self.rounds}_mutation{self.mutation_percentage}.csv')
+        self.data.to_csv(f'data/csv/{tag}_ipg{self.gc.individuals_per_generation}_steps{self.steps}_rounds{self.rounds}_mutation{self.mutation_percentage}_stop{self.stop_breeding}.csv')
     
     def to_txt(self, winner):
         
-        with open(f'ipg{self.gc.individuals_per_generation}_steps{self.steps}_rounds{self.rounds}_mutation{self.mutation_percentage}.txt', 'w') as w:
+        with open(f'data/txt/champion_ipg{self.gc.individuals_per_generation}_steps{self.steps}_rounds{self.rounds}_mutation{self.mutation_percentage}_stop{self.stop_breeding}.txt', 'w') as w:
             for direction in winner.genetic:
                 w.write(f'{direction}\n')
       
-    def config_maze(self, maze_, tk_root):
-        altura  = len(maze_) 
-        largura = len(maze_[0]) 
-        maze_obj = maze.Maze(altura, largura, maze_, tk_root)
+    def config_maze(self, maze_, process_option):
+        self.altura  = len(maze_) 
+        self.largura = len(maze_[0])
+        self.end = self.altura + self.largura
+        
+        maze_obj = maze.Maze(self.altura, self.largura, maze_, process_option)
         return maze_obj
         
     def reset_maze(self):    
@@ -63,13 +64,14 @@ class IA:
                 
                 self.new_maze.set_ia_run(ind.genetic, ind.name)
                 self.new_maze.run()
-                self.analyse_run(ind.name)
+                self.calculate_h(ind.name)
                 self.reset_maze()
                 
-            father, mother, end = self.select_best()
+            father, mother, end = self.tournament_selection()
             
             if end:
                 self.to_txt(father)
+                self.to_csv('champion')
                 print("\nAtingiu o final do labirinto! Parabéns!")
                 break
             
@@ -77,13 +79,13 @@ class IA:
             
             self.breeding_analyse(father, mother)
             
-            first_son, second_son = self.tournament_selection(father, mother)
+            first_son, second_son = self.breeding(father, mother)
             
             self.gc.create_generation([father, first_son, second_son])
 
             self.generation_cont += 1         
-        
-        self.to_csv()
+            
+        self.to_csv('loser')
     
     def breeding_analyse(self, father, mother):
         
@@ -100,12 +102,12 @@ class IA:
             self.stop_breeding_count += 1
             print(f"\nGeração não melhora a {self.stop_breeding_count} rounds")
     
-    def analyse_run(self, id_):
+    def calculate_h(self, id_):
         
         self.gc.generation[self.generation_cont][id_].reach = self.new_maze.actual
         self.gc.generation[self.generation_cont][id_].h = (self.new_maze.actual[0] + 1) + (self.new_maze.actual[1] + 1)
         
-    def select_best(self):
+    def tournament_selection(self):
         
         father = [0, 0]
         mother = [0, 0]
@@ -131,14 +133,13 @@ class IA:
         print(f'Mother ID: {mother[0]}  Mother H: {mother[1]}')
         print('\n-------------------------------------------')
         
-        # Tornar generico
-        if father[1] == 24:
+        if father[1] == self.end:
             return self.gc.generation[self.generation_cont][father[0]], self.gc.generation[self.generation_cont][mother[0]], True
         
         else:
             return self.gc.generation[self.generation_cont][father[0]], self.gc.generation[self.generation_cont][mother[0]], False
 
-    def tournament_selection(self, father, mother):
+    def breeding(self, father, mother):
            
         # Setando ponto de corte
         cutting_point = int(self.steps / 2)
@@ -169,46 +170,6 @@ class IA:
             direction = random.randrange(0, 4)
             
             to_mutate.genetic[gene_to_mutate] = genes_dict[direction]
-    
-    # A* algorithm
-    
-    def test_a(self):
-        
-        ind_length = 15
-        self.a = a.A()
-        self.maze.start_a_run(self.maze.maze)
-        cont = 0
-        algorithm = True
-        while algorithm:
-             
-            self.a.create_individual(self.maze.actual, self.maze.maze)
-            
-            move = self.walk()
-            algorithm = self.maze.a_run(move, self.maze.maze)
-        
-            cont += 1
-            
-    def walk(self):
-        
-        print(f"Individuo {self.a.queue[0].id} veio do nodo: {self.a.queue[0].came_from}")
-        print(f"Possuí os seguintes movimentos: {self.a.queue[0].possible_moves}")
-        
-        if len(self.a.queue[0].possible_moves) > 1:
-            key = self.a.euclidean_distance(self.a.queue[0].possible_moves, self.maze.actual, self.maze.maze)
-            #key = self.a.analyse_move(self.a.queue[0].possible_moves, self.maze.actual, self.maze.maze, key)
-            move = self.a.queue[0].possible_moves.pop(self.a.queue[0].possible_moves.index(key))
-        
-        else:
-            move = self.a.queue[0].possible_moves.pop(0)
-            
-        print(f"Andou na direção {move}")
-        print(f"Sobrou os seguintes movimentos: {self.a.queue[0].possible_moves}")
-        
-        if self.a.queue[0].possible_moves == []:
-            print("Popped!")
-            self.a.pop()
-        
-        return move
         
 def main(file_):
     
